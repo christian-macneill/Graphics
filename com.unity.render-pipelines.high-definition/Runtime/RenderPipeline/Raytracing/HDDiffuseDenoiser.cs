@@ -15,8 +15,6 @@ namespace UnityEngine.Rendering.HighDefinition
         public float pixelSpreadTangent;
         public float kernelSize;
         public bool halfResolutionFilter;
-        public bool jitterFilter;
-        public int frameIndex;
 
         // Kernels
         public int bilateralFilterKernel;
@@ -82,7 +80,7 @@ namespace UnityEngine.Rendering.HighDefinition
         {
         }
 
-        public DiffuseDenoiserParameters PrepareDiffuseDenoiserParameters(HDCamera hdCamera, bool singleChannel, float kernelSize, bool halfResolutionFilter, bool jitterFilter)
+        public DiffuseDenoiserParameters PrepareDiffuseDenoiserParameters(HDCamera hdCamera, bool singleChannel, float kernelSize, bool halfResolutionFilter)
         {
             DiffuseDenoiserParameters ddParams = new DiffuseDenoiserParameters();
 
@@ -95,8 +93,6 @@ namespace UnityEngine.Rendering.HighDefinition
             ddParams.pixelSpreadTangent = HDRenderPipeline.GetPixelSpreadTangent(hdCamera.camera.fieldOfView, hdCamera.actualWidth, hdCamera.actualHeight);
             ddParams.kernelSize = kernelSize;
             ddParams.halfResolutionFilter = halfResolutionFilter;
-            ddParams.jitterFilter = jitterFilter;
-            ddParams.frameIndex = m_RenderPipeline.RayTracingFrameIndex(hdCamera);
 
             // Kernels
             ddParams.bilateralFilterKernel = singleChannel ? m_BilateralFilterSingleKernel : m_BilateralFilterColorKernel;
@@ -141,11 +137,6 @@ namespace UnityEngine.Rendering.HighDefinition
             cmd.SetComputeTextureParam(ddParams.diffuseDenoiserCS, ddParams.bilateralFilterKernel, HDShaderIDs._DenoiseOutputTextureRW, ddParams.halfResolutionFilter ? ddResources.intermediateBuffer : ddResources.outputBuffer);
             cmd.SetComputeIntParam(ddParams.diffuseDenoiserCS, HDShaderIDs._HalfResolutionFilter, ddParams.halfResolutionFilter ? 1 : 0);
             cmd.SetComputeFloatParam(ddParams.diffuseDenoiserCS, HDShaderIDs._PixelSpreadAngleTangent, ddParams.pixelSpreadTangent);
-            if (ddParams.jitterFilter)
-                cmd.SetComputeIntParam(ddParams.diffuseDenoiserCS, HDShaderIDs._JitterFramePeriod, (ddParams.frameIndex % 4));
-            else
-                cmd.SetComputeIntParam(ddParams.diffuseDenoiserCS, HDShaderIDs._JitterFramePeriod, -1);
-
             cmd.DispatchCompute(ddParams.diffuseDenoiserCS, ddParams.bilateralFilterKernel, numTilesX, numTilesY, ddParams.viewCount);
 
             if (ddParams.halfResolutionFilter)
