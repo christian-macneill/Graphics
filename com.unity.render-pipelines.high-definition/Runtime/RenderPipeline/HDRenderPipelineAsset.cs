@@ -14,12 +14,6 @@ namespace UnityEngine.Rendering.HighDefinition
         AllShaders,
     }
 
-    enum LensAttenuationMode
-    {
-        ImperfectLens,
-        PerfectLens
-    }
-
     /// <summary>
     /// High Definition Render Pipeline asset.
     /// </summary>
@@ -84,15 +78,6 @@ namespace UnityEngine.Rendering.HighDefinition
             get => m_DefaultVolumeProfile;
             set => m_DefaultVolumeProfile = value;
         }
-
-        [SerializeField] private LensAttenuationMode m_LensAttenuation;
-
-        internal LensAttenuationMode lensAttenuationMode
-        {
-            get => m_LensAttenuation;
-            set => m_LensAttenuation = value;
-        }
-
 
 #if UNITY_EDITOR
         [SerializeField] private VolumeProfile m_DefaultLookDevProfile;
