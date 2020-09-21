@@ -497,7 +497,8 @@ namespace UnityEngine.Rendering.HighDefinition
 
         void UpdateProbeName()
         {
-            if (settings.type == ProbeSettings.ProbeType.ReflectionProbe)
+            // TODO: ask if this is ok:
+            if (settings.type == ProbeSettings.ProbeType.PlanarProbe)
             {
                 for (int i = 0; i < 6; i++)
                     probeName[i] = $"Reflection Probe RenderCamera ({name}: {(CubemapFace)i})";
