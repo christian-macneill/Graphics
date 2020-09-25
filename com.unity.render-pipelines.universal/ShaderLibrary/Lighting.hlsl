@@ -408,10 +408,10 @@ half DirectBRDFSpecular(BRDFData brdfData, half3 normalWS, half3 lightDirectionW
     // We further optimize a few light invariant terms
     // brdfData.normalizationTerm = (roughness + 0.5) * 4.0 rewritten as roughness * 4.0 + 2.0 to a fit a MAD.
     float d = NoH * NoH * brdfData.roughness2MinusOne + 1.00001f;
-
+    d = step(0.1, d);
     half LoH2 = LoH * LoH;
     half specularTerm = brdfData.roughness2 / ((d * d) * max(0.1h, LoH2) * brdfData.normalizationTerm);
-
+    specularTerm = clamp(specularTerm, 0.0, 100.0);
     // On platforms where half actually means something, the denominator has a risk of overflow
     // clamp below was added specifically to "fix" that, but dx compiler (we convert bytecode to metal/gles)
     // sees that specularTerm have only non-negative terms, so it skips max(0,..) in clamp (leaving only min(100,...))
@@ -703,6 +703,7 @@ half3 LightingPhysicallyBased(BRDFData brdfData, BRDFData brdfDataClearCoat,
     half clearCoatMask, bool specularHighlightsOff)
 {
     half NdotL = saturate(dot(normalWS, lightDirectionWS));
+    NdotL = step(0.1, NdotL);
     half3 radiance = lightColor * (lightAttenuation * NdotL);
 
     half3 brdf = brdfData.diffuse;
